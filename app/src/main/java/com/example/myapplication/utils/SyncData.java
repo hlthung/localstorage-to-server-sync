@@ -64,6 +64,9 @@ public class SyncData extends AsyncTask<Void, Void, String> {
                 in.close();
 
                 response = responseBuffer.toString();
+
+                // Clear data from SQLite database
+                myDB.clearData();
             } else {
                 response = "Error syncing data to server";
             }
