@@ -62,7 +62,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                         .navigate(R.id.action_FirstFragment_to_SecondFragment);
 //                List<User> userList = myDB.getData();
 //                for (User user : userList) {
-//                    Log.d("myData", user.getKey() + " " + user.getValue());
+//                    Log.i("myData", user.getKey() + " " + user.getValue());
 //                }
                 break;
 

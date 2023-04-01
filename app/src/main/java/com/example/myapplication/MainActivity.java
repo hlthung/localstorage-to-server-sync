@@ -1,22 +1,26 @@
 package com.example.myapplication;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.NetworkInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.myapplication.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
+import com.example.myapplication.utils.SyncData;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -26,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -43,6 +46,42 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                // TODO Seems like cannot detect Mobile Hotspot
+                if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
+                    NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+                    if (networkInfo != null && networkInfo.isConnected()) {
+                        Log.i("[TEST]", "Wifi connected ");
+                        SyncData syncData = new SyncData(context);
+                        syncData.execute();
+                    } else {
+                        Log.i("[TEST]", "Wifi not connected ");
+                    }
+                }
+            }
+        };
+        registerReceiver(broadcastReceiver, intentFilter);
+
+//        // Schedule the sync job to run daily at 12pm
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(Calendar.HOUR_OF_DAY, 12);
+//        calendar.set(Calendar.MINUTE, 0);
+//        calendar.set(Calendar.SECOND, 0);
+//
+//        JobInfo syncJob = new JobInfo.Builder(123, new ComponentName(this, SyncJobService.class))
+//                .setMinimumLatency(calendar.getTimeInMillis() - System.currentTimeMillis())
+//                .setPersisted(true)
+//                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+//                .build();
+//
+//        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+//        jobScheduler.schedule(syncJob);
+
     }
 
     @Override
