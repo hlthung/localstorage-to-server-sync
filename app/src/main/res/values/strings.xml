@@ -6,7 +6,7 @@
     <string name="table_layout_label">Review Local Data</string>
     <string name="save">Save data in local app</string>
     <string name="sync">Sync data to central server</string>
-    <string name="server_url">http://192.168.68.51:8080/api/</string>
+    <string name="server_url">http://localhost:8080/api/</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
