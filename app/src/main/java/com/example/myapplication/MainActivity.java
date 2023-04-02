@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -48,19 +48,25 @@ public class MainActivity extends AppCompatActivity {
         });
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                // TODO Seems like cannot detect Mobile Hotspot
-                if (intent.getAction().equals(WifiManager.NETWORK_STATE_CHANGED_ACTION)) {
-                    NetworkInfo networkInfo = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-                    if (networkInfo != null && networkInfo.isConnected()) {
-                        Log.i("[TEST]", "Wifi connected ");
+                if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
+                    ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo activeNetworkInfo = connMgr.getActiveNetworkInfo();
+                    // To show the network type, we can use the following code:
+                    if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
+                        if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                            Log.i("[TEST]", "WiFi connected");
+                        } else if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
+                            Log.i("[TEST]", "Mobile data connected");
+                        }
+                        Log.i("[TEST]", "Syncing data... ");
                         SyncData syncData = new SyncData(context);
                         syncData.execute();
                     } else {
-                        Log.i("[TEST]", "Wifi not connected ");
+                        Log.i("[TEST]", "No network connection");
                     }
                 }
             }
