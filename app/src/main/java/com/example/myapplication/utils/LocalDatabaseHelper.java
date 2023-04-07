@@ -59,19 +59,18 @@ public class LocalDatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<User>  getData() {
+    public List<User> getData() {
         List<User> dataList = new ArrayList<>();
 
         SQLiteDatabase db = this.getReadableDatabase();
         String SELECT_QUERY = "SELECT * FROM " + TABLE_NAME;
         Cursor cursor = db.rawQuery(SELECT_QUERY, null);
 
-        while(cursor.moveToNext()) {
-            long id = cursor.getLong(cursor.getColumnIndexOrThrow("id"));
+        while (cursor.moveToNext()) {
             String user = cursor.getString(cursor.getColumnIndexOrThrow("sample_key"));
             String value = cursor.getString(cursor.getColumnIndexOrThrow("sample_value"));
 
-            User data = new User(id, user, value);
+            User data = new User(user, value);
             dataList.add(data);
         }
 
