@@ -2,14 +2,11 @@ package com.example.myapplication;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.icu.util.Calendar;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,7 +20,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.myapplication.databinding.ActivityMainBinding;
-import com.example.myapplication.utils.SyncData;
+import com.example.myapplication.utils.NetworkChangeReceiver;
 import com.example.myapplication.utils.SyncJobService;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -32,8 +29,12 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final int JOB_ID = 123;
+
     private AppBarConfiguration appBarConfiguration;
+
     private ActivityMainBinding binding;
+
+    private NetworkChangeReceiver networkChangeReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,32 +56,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Sync data when network is connected
+        // Create an instance of NetworkChangeReceiver
+        networkChangeReceiver = new NetworkChangeReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-                    ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-                    NetworkInfo activeNetworkInfo = connMgr.getActiveNetworkInfo();
-                    // To show the network type, we can use the following code:
-                    if (activeNetworkInfo != null && activeNetworkInfo.isConnected()) {
-                        if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                            Log.i("[TEST]", "WiFi connected");
-                        } else if (activeNetworkInfo.getType() == ConnectivityManager.TYPE_MOBILE) {
-                            Log.i("[TEST]", "Mobile data connected");
-                        }
-                        Log.i("[TEST]", "Syncing data for network connection");
-                        SyncData syncData = new SyncData(context);
-                        syncData.execute();
-                    } else {
-                        Log.i("[TEST]", "No network connection");
-                    }
-                }
-            }
-        };
-        registerReceiver(broadcastReceiver, intentFilter);
+        registerReceiver(networkChangeReceiver, intentFilter);
 
         // Schedule the sync job to run daily at 12pm
         Calendar calendar = Calendar.getInstance();
@@ -98,10 +78,7 @@ public class MainActivity extends AppCompatActivity {
         jobScheduler.schedule(syncJob);
         List<JobInfo> jobInfoList = jobScheduler.getAllPendingJobs();
         for (JobInfo jobInfo : jobInfoList) {
-            if (jobInfo.getId() == JOB_ID) {
-                Log.i("[TEST]", "Sync job already scheduled");
-                break;
-            }
+            Log.i("[TEST]", "Sync job already scheduled, jobInfo: " + jobInfo.toString());
         }
     }
 
@@ -132,5 +109,20 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Register the receiver dynamically
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Unregister the receiver
+        unregisterReceiver(networkChangeReceiver);
     }
 }
