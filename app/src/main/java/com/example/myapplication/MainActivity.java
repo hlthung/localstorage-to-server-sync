@@ -4,6 +4,7 @@ import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.icu.util.Calendar;
 import android.net.ConnectivityManager;
@@ -22,6 +23,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.myapplication.databinding.ActivityMainBinding;
 import com.example.myapplication.utils.NetworkChangeReceiver;
 import com.example.myapplication.utils.SyncJobService;
+import com.example.myapplication.utils.SyncService;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
@@ -35,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     private NetworkChangeReceiver networkChangeReceiver;
+
+    private Intent startSyncIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         registerReceiver(networkChangeReceiver, intentFilter);
+
+        startSyncIntent = new Intent(this, SyncService.class);
+        startService(startSyncIntent);
 
         // Schedule the sync job to run daily at 12pm
         Calendar calendar = Calendar.getInstance();

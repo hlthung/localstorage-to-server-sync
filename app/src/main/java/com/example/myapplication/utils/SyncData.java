@@ -1,10 +1,7 @@
 package com.example.myapplication.utils;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
@@ -30,7 +27,6 @@ public class SyncData extends AsyncTask<Void, Void, String> {
     protected String doInBackground(Void... params) {
         String response = "";
         try {
-            Log.i(TAG, "[TEST]: Syncing data to server ... ");
             // Get data from SQLite database
             LocalDatabaseHelper myDB = new LocalDatabaseHelper(context);
             List<User> dataList = myDB.getData();
