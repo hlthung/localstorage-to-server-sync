@@ -5,9 +5,7 @@ import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.icu.util.Calendar;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,7 +19,6 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.myapplication.databinding.ActivityMainBinding;
-import com.example.myapplication.utils.NetworkChangeReceiver;
 import com.example.myapplication.utils.SyncJobService;
 import com.example.myapplication.utils.SyncService;
 import com.google.android.material.snackbar.Snackbar;
@@ -35,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private AppBarConfiguration appBarConfiguration;
 
     private ActivityMainBinding binding;
-
-    private NetworkChangeReceiver networkChangeReceiver;
 
     private Intent startSyncIntent;
 
@@ -61,11 +56,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Create an instance of NetworkChangeReceiver
-        networkChangeReceiver = new NetworkChangeReceiver();
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkChangeReceiver, intentFilter);
-
         startSyncIntent = new Intent(this, SyncService.class);
         startService(startSyncIntent);
 
@@ -116,20 +106,5 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Register the receiver dynamically
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        registerReceiver(networkChangeReceiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // Unregister the receiver
-        unregisterReceiver(networkChangeReceiver);
     }
 }
