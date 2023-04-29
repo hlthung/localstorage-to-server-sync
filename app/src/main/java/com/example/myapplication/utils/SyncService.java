@@ -19,8 +19,6 @@ import com.example.myapplication.MainActivity;
 
 public class SyncService extends IntentService {
 
-    private static int FOREGROUND_ID = 1338;
-    public Boolean isServiceRunning = false;
     Integer delay;
     private NotificationManager mgr;
 
